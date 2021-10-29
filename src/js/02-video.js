@@ -5,7 +5,7 @@ const TIME_KEY = 'videoplayer-current-time';
 
 player.setCurrentTime(localStorage.getItem(TIME_KEY));
 
-const onPlay = () => {
+const onPlay = e => {
   player
     .getCurrentTime()
     .then(function (seconds) {
