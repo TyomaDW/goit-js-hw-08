@@ -13,6 +13,7 @@ const onPlay = () => {
     })
     .catch(function (error) {
       console.log(error.name);
+      console.log(error.message);
     });
 };
 
