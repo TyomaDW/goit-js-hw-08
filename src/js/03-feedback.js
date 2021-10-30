@@ -1,32 +1,48 @@
 import throttle from 'lodash.throttle';
+const STORAGE_KEY = 'feedback-form-state';
 
-const formRef = document.querySelector('.feedback-form');
-const emailRef = document.querySelector('input[name="email"]');
-const messageRef = document.querySelector('textarea[name="message"]');
-const LOCALSTORAGE_KEY = 'feedback-form-state';
-const formData = {};
+const refs = {
+  formEl: document.querySelector('.feedback-form'),
+  emailEl: document.querySelector('input[type = "email"]'),
+  messageEl: document.querySelector('textarea[name = "message"]'),
+};
 
-formRef.addEventListener('submit', onFormSubmit);
-formRef.addEventListener('input', throttle(onInputMessage, 500));
-
-checkSavedImputs();
-
-function onInputMessage(event) {
-  formData[event.target.name] = event.target.value.trim();
-  localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(formData));
+function onFormSubmit(e) {
+  e.preventDefault();
+  if (formData.email == '' || formData.message == '') {
+    alert('Заполните все поля!');
+  } else {
+    console.log('Успех!', formData);
+    e.currentTarget.reset();
+    localStorage.removeItem(STORAGE_KEY);
+  }
 }
-function onFormSubmit(event) {
-  event.preventDefault();
-  console.log(JSON.parse(localStorage.getItem(LOCALSTORAGE_KEY)));
-  event.currentTarget.reset();
-  localStorage.removeItem(LOCALSTORAGE_KEY);
-}
-function checkSavedImputs() {
-  const saveInputs = localStorage.getItem(LOCALSTORAGE_KEY);
 
-  if (saveInputs) {
-    const { email, message } = JSON.parse(saveInputs);
-    messageRef.value = message;
-    emailRef.value = email;
+const formData = {
+  email: '',
+  message: '',
+};
+
+refs.formEl.addEventListener('input', e => {
+  formData[e.target.name] = e.target.value;
+});
+refs.formEl.addEventListener('submit', onFormSubmit);
+refs.formEl.addEventListener('input', throttle(onTextareaInput, 500));
+popularTextarea();
+
+function onTextareaInput(e) {
+  let message = JSON.stringify(formData);
+  localStorage.setItem(STORAGE_KEY, message);
+}
+
+function popularTextarea() {
+  let parsedMessage = JSON.parse(localStorage.getItem(STORAGE_KEY));
+
+  if (parsedMessage) {
+    formData.message = parsedMessage.message;
+    formData.email = parsedMessage.email;
+
+    refs.messageEl.value = parsedMessage.message;
+    refs.emailEl.value = parsedMessage.email;
   }
 }
